@@ -216,17 +216,38 @@ def get_2d_drawing(
     return frame
 
 def get_ball_position_by_time(events):
+    touch_types = set([
+        'TOUCH',
+        'THROW_IN',
+        'GOAL_KICK',
+        'CORNER',
+        'KICKOFF',
+        'PK',
+        'DIRECT_FREE_KICK',
+        'INDIRECT_FREE_KICK',
+    ])
+    event_types_with_ball_locations = set([
+        'BALL_OUT_FOR_THROW_IN',
+        'BALL_OUT_FOR_GOAL_KICK',
+        'BALL_OUT_FOR_CORNER',
+        'GOAL',
+        'HANDBALL',
+    ])
     ball_position_by_time = {}
     for event in events:
-        if event['type'] == 'TOUCH':
+        if event['type'] in touch_types:
             touch_player_name = event['touch']
             touch_player_meta = event['players'][touch_player_name]
             ball_position_by_time[event['time']] = Point(
                 x=touch_player_meta['x'], y=touch_player_meta['y'])
+        elif event['type'] in event_types_with_ball_locations:
+            location = event['location']
+            ball_position_by_time[event['time']] = Point(
+                x=location['x'], y=location['y'])
     prev_touch_event = None
     events_since_prev_touch = []
     for event in events:
-        if event['type'] == 'TOUCH':
+        if (event['type'] in touch_types) or (event['type'] in event_types_with_ball_locations):
             if prev_touch_event:
                 prev_time = prev_touch_event['time']
                 prev_ball_pos = ball_position_by_time[prev_time]
