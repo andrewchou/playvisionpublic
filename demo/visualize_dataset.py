@@ -225,13 +225,13 @@ def get_ball_position_by_time(events):
         'PK',
         'DIRECT_FREE_KICK',
         'INDIRECT_FREE_KICK',
+        'HANDBALL',
     ])
     event_types_with_ball_locations = set([
         'BALL_OUT_FOR_THROW_IN',
         'BALL_OUT_FOR_GOAL_KICK',
         'BALL_OUT_FOR_CORNER',
         'GOAL',
-        'HANDBALL',
     ])
     ball_position_by_time = {}
     for event in events:
