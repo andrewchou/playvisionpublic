@@ -20,7 +20,11 @@ REF_NAME = 'REFEREE'
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Visualize Dataset')
-    parser.add_argument('--dataset', type=str, help='The filename of the json dataset')
+    parser.add_argument(
+        '--dataset', type=str, required=True, help='The filename of the json dataset')
+    parser.add_argument(
+        '--max-wait-ms', type=int, default=1000,
+        help='The max number of milliseconds to wait between frames.')
     args = parser.parse_args()
     return args
 
@@ -236,7 +240,10 @@ def get_ball_position_by_time(events):
     ball_position_by_time = {}
     for event in events:
         if event['type'] in touch_types:
-            touch_player_name = event['touch']
+            if event['type'] == 'HANDBALL':
+                touch_player_name = event['commited_by']
+            else:
+                touch_player_name = event['touch']
             touch_player_meta = event['players'][touch_player_name]
             ball_position_by_time[event['time']] = Point(
                 x=touch_player_meta['x'], y=touch_player_meta['y'])
@@ -275,7 +282,7 @@ if __name__ == '__main__':
     scenes_by_period = dataset['periods']
     assert isinstance(scenes_by_period, list)
     stats = StreamingStats(dataset=dataset)
-    max_wait_ms = 1000
+    max_wait_ms = args.max_wait_ms
     t0 = time.time()
     for scene in scenes_by_period:
         for events_for_scene in scene:
